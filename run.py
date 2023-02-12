@@ -63,11 +63,10 @@ class Snake:
             Update the snake's state
         """
 
-        self.cur_input = None
-
-        # if the player didn't input anything, continue moving in the
-        # same direction
         if frame_count % SNAKE_MOVE_DELAY == 0:
+            # if the player didn't input anything, continue moving in the
+            # same direction
+            self.cur_input = None
             if len(inputs) == 0:
                 self.cur_input = self.prev_input
             else:
