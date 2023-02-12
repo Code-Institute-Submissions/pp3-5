@@ -67,10 +67,8 @@ class Snake:
             self.head.x += 1
 
         # clamp snake position to stay within the game window
-        self.head.x = min(self.head.x, GAME_WIDTH - 1)
-        self.head.x = max(self.head.x, 0)
-        self.head.y = min(self.head.y, GAME_HEIGHT - 1)
-        self.head.y = max(self.head.y, 0)
+        self.head.x = clamp(self.head.x, 0, GAME_WIDTH - 1)
+        self.head.y = clamp(self.head.y, 0, GAME_HEIGHT - 1)
 
     def draw(self, screen):
         """
@@ -80,6 +78,20 @@ class Snake:
         screen.attron(curses.color_pair(Colors.SNAKE))
         screen.addstr(self.head.y, self.head.x * 2, "  ")
         screen.attroff(curses.color_pair(Colors.SNAKE))
+
+
+def clamp(num: int, lower: int, upper: int) -> int:
+    """
+        Clamp `num` between `lower` and `upper`
+    """
+
+    if num > upper:
+        return upper
+
+    if num < lower:
+        return lower
+
+    return num
 
 
 def game_loop(screen):
