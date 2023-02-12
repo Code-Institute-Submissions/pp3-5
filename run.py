@@ -4,6 +4,7 @@
 
 import curses
 import enum
+import random
 import time
 from dataclasses import dataclass
 
@@ -36,9 +37,9 @@ class Colors(enum.IntEnum):
 
 
 @dataclass
-class Segment:
+class Point:
     """
-        A segment/cell of the snake
+        A 2D position in the game
     """
     x: int
     y: int
@@ -50,7 +51,7 @@ class Snake:
     """
 
     def __init__(self):
-        self.head = Segment(GAME_HEIGHT // 2, GAME_WIDTH // 2)
+        self.head = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
 
     def move(self, direction: Direction):
         """
@@ -80,6 +81,41 @@ class Snake:
         screen.attroff(curses.color_pair(Colors.SNAKE))
 
 
+class Apple:
+    """
+        Apple that the snake can eat to make its body longer
+    """
+
+    def __init__(self, snake: Snake):
+        self.set_new_pos(snake)
+
+    def set_new_pos(self, snake: Snake):
+        """
+            Place the apple in a new random position that doesn't
+            overlap with the snake
+        """
+        self.pos = Point(
+            random.randrange(0, GAME_WIDTH),
+            random.randrange(0, GAME_HEIGHT)
+        )
+
+        # ensure the apple doesn't overlap the snake
+        while self.pos == snake.head:
+            self.pos = Point(
+                random.randrange(0, GAME_WIDTH),
+                random.randrange(0, GAME_HEIGHT)
+            )
+
+    def draw(self, screen):
+        """
+            Draw the apple to the screen
+        """
+
+        screen.attron(curses.color_pair(Colors.APPLE))
+        screen.addstr(self.pos.y, self.pos.x * 2, "  ")
+        screen.attroff(curses.color_pair(Colors.APPLE))
+
+
 def clamp(num: int, lower: int, upper: int) -> int:
     """
         Clamp `num` between `lower` and `upper`
@@ -100,6 +136,7 @@ def game_loop(screen):
     """
 
     snake = Snake()
+    apple = Apple(snake)
 
     # set initial direction to right
     previous_input = Direction.RIGHT
@@ -145,8 +182,12 @@ def game_loop(screen):
             snake.move(current_input)
             previous_input = current_input
 
-        # draw the snake to the screen
+            if snake.head == apple.pos:
+                apple.set_new_pos(snake)
+
+        # draw the snake and apple to the screen
         snake.draw(screen)
+        apple.draw(screen)
 
         # update the display with what has been drawn
         screen.refresh()
@@ -178,6 +219,7 @@ def main(screen):
     # initialize colors used for the game
     curses.init_pair(Colors.TEXT, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(Colors.SNAKE, curses.COLOR_GREEN, curses.COLOR_GREEN)
+    curses.init_pair(Colors.APPLE, curses.COLOR_RED, curses.COLOR_RED)
 
     # turn the cursor back on after the game ends
     try:
