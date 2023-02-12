@@ -68,6 +68,8 @@ def game_loop(screen):
     """
 
     snake = Snake()
+
+    # set initial direction to right
     previous_input = Direction.RIGHT
 
     running = True
