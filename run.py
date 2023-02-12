@@ -130,6 +130,30 @@ def clamp(num: int, lower: int, upper: int) -> int:
     return num
 
 
+# pylint: disable=unsubscriptable-object
+def handle_input(k: int, inputs: list[Direction]) -> bool:
+    """
+        Handle the player's input, adding a direction to the
+        input queue if necessary
+    """
+
+    # if the player presses q, close the game
+    if k == ord("q"):
+        return False
+
+    # add the player input direction to the input queue
+    if k == curses.KEY_UP:
+        inputs.append(Direction.UP)
+    elif k == curses.KEY_DOWN:
+        inputs.append(Direction.DOWN)
+    elif k == curses.KEY_LEFT:
+        inputs.append(Direction.LEFT)
+    elif k == curses.KEY_RIGHT:
+        inputs.append(Direction.RIGHT)
+
+    return True
+
+
 def game_loop(screen):
     """
         Main game loop, handles all game updates and drawing to the screen
@@ -157,18 +181,7 @@ def game_loop(screen):
         # read the player input
         current_input = None
         k = screen.getch()
-        # if the player presses q, close the game
-        if k == ord("q"):
-            running = False
-        # add the player input direction to the input queue
-        elif k == curses.KEY_UP:
-            inputs.append(Direction.UP)
-        elif k == curses.KEY_DOWN:
-            inputs.append(Direction.DOWN)
-        elif k == curses.KEY_LEFT:
-            inputs.append(Direction.LEFT)
-        elif k == curses.KEY_RIGHT:
-            inputs.append(Direction.RIGHT)
+        running = handle_input(k, inputs)
 
         if frame_count % SNAKE_MOVE_DELAY == 0:
             # if the player didn't input anything, continue moving in the
