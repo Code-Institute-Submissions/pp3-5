@@ -1,5 +1,9 @@
 """Module providing TUI (text user interface) functionality"""
 import curses
+import time
+
+
+FPS = 60
 
 
 def game_loop(screen):
@@ -11,6 +15,8 @@ def game_loop(screen):
 
     running = True
     while running:
+        frame_start = time.time()
+
         screen.clear()
         height, width = screen.getmaxyx()
 
@@ -35,6 +41,12 @@ def game_loop(screen):
         screen.move(cursor_y, cursor_x)
 
         screen.refresh()
+
+        # limit framerate to `FPS`
+        frame_end = time.time()
+        frame_delta = frame_end - frame_start
+        if frame_delta < 1 / FPS:
+            time.sleep(1 / FPS - frame_delta)
 
 
 def main(screen):
