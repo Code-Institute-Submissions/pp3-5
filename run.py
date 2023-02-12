@@ -1,4 +1,7 @@
-"""Module providing TUI (text user interface) functionality"""
+"""
+    Snake game using curses for graphics and input
+"""
+
 import curses
 import time
 
