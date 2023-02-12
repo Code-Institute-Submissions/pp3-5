@@ -94,6 +94,8 @@ def game_loop(screen):
     # number of frames since the game started
     frame_count = 0
 
+    inputs: list[Direction] = []
+
     running = True
     while running:
         frame_start = time.time()
@@ -101,29 +103,33 @@ def game_loop(screen):
         # clear the screen
         screen.clear()
 
-        # read the player input and set the direction accordingly
+        # read the player input
         current_input = None
         k = screen.getch()
+        # if the player presses q, close the game
         if k == ord("q"):
-            # if the player presses q, close the game
             running = False
+        # add the player input direction to the input queue
         elif k == curses.KEY_UP:
-            current_input = Direction.UP
+            inputs.append(Direction.UP)
         elif k == curses.KEY_DOWN:
-            current_input = Direction.DOWN
+            inputs.append(Direction.DOWN)
         elif k == curses.KEY_LEFT:
-            current_input = Direction.LEFT
+            inputs.append(Direction.LEFT)
         elif k == curses.KEY_RIGHT:
-            current_input = Direction.RIGHT
+            inputs.append(Direction.RIGHT)
 
-        # if the player didn't input anything, continue moving in the
-        # same direction
-        if current_input is None:
-            current_input = previous_input
+        if frame_count % 30 == 0:
+            # if the player didn't input anything, continue moving in the
+            # same direction
+            if len(inputs) == 0:
+                current_input = previous_input
+            else:
+                current_input = inputs.pop(0)
 
-        # apply the movement direction to the snake
-        snake.move(current_input)
-        previous_input = current_input
+            # apply the movement direction to the snake
+            snake.move(current_input)
+            previous_input = current_input
 
         # draw the snake to the screen
         snake.draw(screen)
