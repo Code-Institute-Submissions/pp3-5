@@ -143,14 +143,22 @@ def main(screen):
     # initialize the screen
     screen.clear()
     screen.refresh()
+
     # make `getch` non-blocking
     screen.nodelay(1)
+
+    # turn off the cursor
+    curses.curs_set(0)
 
     # initialize colors used for the game
     curses.init_pair(Colors.TEXT, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(Colors.SNAKE, curses.COLOR_GREEN, curses.COLOR_GREEN)
 
-    game_loop(screen)
+    # turn the cursor back on after the game ends
+    try:
+        game_loop(screen)
+    finally:
+        curses.curs_set(1)
 
 
 if __name__ == "__main__":
