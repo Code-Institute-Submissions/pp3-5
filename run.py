@@ -24,6 +24,16 @@ class Direction(enum.IntEnum):
     RIGHT = 3
 
 
+class Colors(enum.IntEnum):
+    """
+        Enum for colors to be used when drawing
+    """
+
+    TEXT = 1
+    SNAKE = 2
+    APPLE = 3
+
+
 @dataclass
 class Segment:
     """
@@ -66,9 +76,9 @@ class Snake:
             Draw the snake to the screen
         """
 
-        screen.attron(curses.color_pair(2))
+        screen.attron(curses.color_pair(Colors.SNAKE))
         screen.addstr(self.head.y, self.head.x * 2, "  ")
-        screen.attroff(curses.color_pair(2))
+        screen.attroff(curses.color_pair(Colors.SNAKE))
 
 
 def game_loop(screen):
@@ -137,10 +147,8 @@ def main(screen):
     screen.nodelay(1)
 
     # initialize colors used for the game
-    # text
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    # snake
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
+    curses.init_pair(Colors.TEXT, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    curses.init_pair(Colors.SNAKE, curses.COLOR_GREEN, curses.COLOR_GREEN)
 
     game_loop(screen)
 
