@@ -6,6 +6,7 @@ import curses
 import enum
 import random
 import time
+from typing import List
 from dataclasses import dataclass
 
 
@@ -130,8 +131,7 @@ def clamp(num: int, lower: int, upper: int) -> int:
     return num
 
 
-# pylint: disable=unsubscriptable-object
-def handle_input(k: int, inputs: list[Direction]) -> bool:
+def handle_input(k: int, inputs: List[Direction]) -> bool:
     """
         Handle the player's input, adding a direction to the
         input queue if necessary
@@ -168,8 +168,7 @@ def game_loop(screen):
     # number of frames since the game started
     frame_count = 0
 
-    # pylint: disable=unsubscriptable-object
-    inputs: list[Direction] = []
+    inputs: List[Direction] = []
 
     running = True
     while running:
