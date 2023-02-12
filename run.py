@@ -60,7 +60,7 @@ class Snake:
 
     def update(self, frame_count, inputs):
         """
-            Update the snake's state
+            Update the snake's state based on the inputs
         """
 
         if frame_count % SNAKE_MOVE_DELAY == 0:
