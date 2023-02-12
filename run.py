@@ -91,6 +91,9 @@ def game_loop(screen):
     # set initial direction to right
     previous_input = Direction.RIGHT
 
+    # number of frames since the game started
+    frame_count = 0
+
     running = True
     while running:
         frame_start = time.time()
@@ -133,6 +136,8 @@ def game_loop(screen):
         frame_delta = frame_end - frame_start
         if frame_delta < 1 / FPS:
             time.sleep(1 / FPS - frame_delta)
+
+        frame_count += 1
 
 
 def main(screen):
