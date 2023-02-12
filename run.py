@@ -94,6 +94,7 @@ def game_loop(screen):
     # number of frames since the game started
     frame_count = 0
 
+    # pylint: disable=unsubscriptable-object
     inputs: list[Direction] = []
 
     running = True
