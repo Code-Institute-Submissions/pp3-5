@@ -61,6 +61,15 @@ class Snake:
         self.head.y = min(self.head.y, GAME_HEIGHT - 1)
         self.head.y = max(self.head.y, 0)
 
+    def draw(self, screen):
+        """
+            Draw the snake to the screen
+        """
+
+        screen.attron(curses.color_pair(2))
+        screen.addstr(self.head.y, self.head.x * 2, "  ")
+        screen.attroff(curses.color_pair(2))
+
 
 def game_loop(screen):
     """
@@ -103,8 +112,8 @@ def game_loop(screen):
         snake.move(current_input)
         previous_input = current_input
 
-        # move the cursor to the snake position
-        screen.move(snake.head.y, snake.head.x)
+        # draw the snake to the screen
+        snake.draw(screen)
 
         # update the display with what has been drawn
         screen.refresh()
