@@ -54,6 +54,29 @@ class Snake:
     def __init__(self):
         self.head = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
 
+        # set initial direction to right
+        self.prev_input = Direction.RIGHT
+        self.cur_input = None
+
+    def update(self, frame_count, inputs):
+        """
+            Update the snake's state
+        """
+
+        self.cur_input = None
+
+        # if the player didn't input anything, continue moving in the
+        # same direction
+        if frame_count % SNAKE_MOVE_DELAY == 0:
+            if len(inputs) == 0:
+                self.cur_input = self.prev_input
+            else:
+                self.cur_input = inputs.pop(0)
+
+            # apply the movement direction to the snake
+            self.move(self.cur_input)
+            self.prev_input = self.cur_input
+
     def move(self, direction: Direction):
         """
             Move the snake's head in a direction, and have its body follow it
@@ -162,9 +185,6 @@ def game_loop(screen):
     snake = Snake()
     apple = Apple(snake)
 
-    # set initial direction to right
-    previous_input = Direction.RIGHT
-
     # number of frames since the game started
     frame_count = 0
 
@@ -178,24 +198,13 @@ def game_loop(screen):
         screen.clear()
 
         # read the player input
-        current_input = None
         k = screen.getch()
         running = handle_input(k, inputs)
 
-        if frame_count % SNAKE_MOVE_DELAY == 0:
-            # if the player didn't input anything, continue moving in the
-            # same direction
-            if len(inputs) == 0:
-                current_input = previous_input
-            else:
-                current_input = inputs.pop(0)
-
-            # apply the movement direction to the snake
-            snake.move(current_input)
-            previous_input = current_input
-
-            if snake.head == apple.pos:
-                apple.set_new_pos(snake)
+        # update the snake and apple
+        snake.update(frame_count, inputs)
+        if snake.head == apple.pos:
+            apple.set_new_pos(snake)
 
         # draw the snake and apple to the screen
         snake.draw(screen)
