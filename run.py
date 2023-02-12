@@ -11,6 +11,7 @@ from dataclasses import dataclass
 FPS = 60
 GAME_WIDTH = 20
 GAME_HEIGHT = 20
+SNAKE_MOVE_DELAY = 10
 
 
 class Direction(enum.IntEnum):
@@ -120,7 +121,7 @@ def game_loop(screen):
         elif k == curses.KEY_RIGHT:
             inputs.append(Direction.RIGHT)
 
-        if frame_count % 30 == 0:
+        if frame_count % SNAKE_MOVE_DELAY == 0:
             # if the player didn't input anything, continue moving in the
             # same direction
             if len(inputs) == 0:
