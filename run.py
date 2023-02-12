@@ -2,18 +2,22 @@
 import curses
 
 
-def draw_menu(screen):
-    k = 0
+def game_loop(screen):
+    """
+        Main game loop, handles all game updates and drawing to the screen
+    """
+
     cursor_x, cursor_y = 0, 0
 
-    screen.clear()
-    screen.refresh()
-
-    while k != ord("q"):
+    running = True
+    while running:
         screen.clear()
         height, width = screen.getmaxyx()
 
-        if k == curses.KEY_DOWN:
+        k = screen.getch()
+        if k == ord("q"):
+            running = False
+        elif k == curses.KEY_DOWN:
             cursor_y += 1
         elif k == curses.KEY_UP:
             cursor_y -= 1
@@ -32,13 +36,21 @@ def draw_menu(screen):
 
         screen.refresh()
 
-        k = screen.getch()
 
+def main(screen):
+    """
+        Main program entrypoint
+    """
 
-def main():
-    """Main program entrypoint"""
-    curses.wrapper(draw_menu)
+    screen.clear()
+    screen.refresh()
+    screen.nodelay(1)
+
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_GREEN)
+
+    game_loop(screen)
 
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(main)
