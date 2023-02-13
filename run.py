@@ -94,14 +94,14 @@ class Snake:
         self.head.x = clamp(self.head.x, 0, GAME_WIDTH - 1)
         self.head.y = clamp(self.head.y, 0, GAME_HEIGHT - 1)
 
-    def draw(self, screen):
+    def draw(self, window):
         """
-            Draw the snake to the screen
+            Draw the snake to the window
         """
 
-        screen.attron(curses.color_pair(Colors.SNAKE))
-        screen.addstr(self.head.y, self.head.x * 2, "  ")
-        screen.attroff(curses.color_pair(Colors.SNAKE))
+        window.attron(curses.color_pair(Colors.SNAKE))
+        window.addstr(self.head.y + 1, self.head.x * 2 + 1, "  ")
+        window.attroff(curses.color_pair(Colors.SNAKE))
 
 
 class Apple:
@@ -129,14 +129,14 @@ class Apple:
                 random.randrange(0, GAME_HEIGHT)
             )
 
-    def draw(self, screen):
+    def draw(self, window):
         """
-            Draw the apple to the screen
+            Draw the apple to the window
         """
 
-        screen.attron(curses.color_pair(Colors.APPLE))
-        screen.addstr(self.pos.y, self.pos.x * 2, "  ")
-        screen.attroff(curses.color_pair(Colors.APPLE))
+        window.attron(curses.color_pair(Colors.APPLE))
+        window.addstr(self.pos.y + 1, self.pos.x * 2 + 1, "  ")
+        window.attroff(curses.color_pair(Colors.APPLE))
 
 
 def clamp(num: int, lower: int, upper: int) -> int:
@@ -176,9 +176,9 @@ def handle_input(k: int, inputs: List[Direction]) -> bool:
     return True
 
 
-def game_loop(screen):
+def game_loop(screen, window):
     """
-        Main game loop, handles all game updates and drawing to the screen
+        Main game loop, handles all game updates and drawing to the game window
     """
 
     snake = Snake()
@@ -193,8 +193,9 @@ def game_loop(screen):
     while running:
         frame_start = time.time()
 
-        # clear the screen
-        screen.clear()
+        # clear the window
+        window.clear()
+        window.border("|", "|", "-", "-", "+", "+", "+", "+")
 
         # read the player input
         k = screen.getch()
@@ -205,12 +206,12 @@ def game_loop(screen):
         if snake.head == apple.pos:
             apple.set_new_pos(snake)
 
-        # draw the snake and apple to the screen
-        snake.draw(screen)
-        apple.draw(screen)
+        # draw the snake and apple to the window
+        snake.draw(window)
+        apple.draw(window)
 
         # update the display with what has been drawn
-        screen.refresh()
+        window.refresh()
 
         # limit framerate to `FPS`
         frame_end = time.time()
@@ -241,9 +242,23 @@ def main(screen):
     curses.init_pair(Colors.SNAKE, curses.COLOR_GREEN, curses.COLOR_GREEN)
     curses.init_pair(Colors.APPLE, curses.COLOR_RED, curses.COLOR_RED)
 
+    # get screen size
+    screen_height, screen_width = screen.getmaxyx()
+
+    # initialize game subwindow with border
+    window_h = GAME_HEIGHT + 2
+    window_w = GAME_WIDTH * 2 + 2
+    window_y = screen_height // 2 - GAME_HEIGHT // 2
+    window_x = screen_width // 2 - GAME_WIDTH // 2
+
+    game_window = screen.subwin(window_h, window_w, window_y, window_x)
+    game_window.clear()
+    game_window.border("|", "|", "-", "-", "+", "+", "+", "+")
+    game_window.refresh()
+
     # turn the cursor back on after the game ends
     try:
-        game_loop(screen)
+        game_loop(screen, game_window)
     finally:
         curses.curs_set(1)
 
