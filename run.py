@@ -21,10 +21,11 @@ class Direction(enum.IntEnum):
         Enum for the directions the snake can travel
     """
 
+    # opposite inputs add to 3
     UP = 0
-    DOWN = 1
+    RIGHT = 1
     LEFT = 2
-    RIGHT = 3
+    DOWN = 3
     NONE = -1
 
 
@@ -72,6 +73,10 @@ class Snake:
                 self.cur_input = self.prev_input
             else:
                 self.cur_input = inputs.pop(0)
+
+            # don't change direction if the snake would turn back on itself
+            if self.cur_input + self.prev_input == 3:
+                self.cur_input = self.prev_input
 
             # apply the movement direction to the snake
             self.move(self.cur_input)
