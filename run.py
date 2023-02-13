@@ -100,9 +100,7 @@ class Snake:
             Draw the snake to the window
         """
 
-        window.attron(curses.color_pair(Colors.SNAKE))
-        window.addstr(self.head.y + 1, self.head.x * 2 + 1, "  ")
-        window.attroff(curses.color_pair(Colors.SNAKE))
+        draw_square(window, self.head, Colors.SNAKE)
 
 
 class Apple:
@@ -135,9 +133,7 @@ class Apple:
             Draw the apple to the window
         """
 
-        window.attron(curses.color_pair(Colors.APPLE))
-        window.addstr(self.pos.y + 1, self.pos.x * 2 + 1, "  ")
-        window.attroff(curses.color_pair(Colors.APPLE))
+        draw_square(window, self.pos, Colors.APPLE)
 
 
 def clamp(num: int, lower: int, upper: int) -> int:
@@ -175,6 +171,16 @@ def handle_input(k: int, inputs: List[Direction]) -> bool:
         inputs.append(Direction.RIGHT)
 
     return True
+
+
+def draw_square(window, pos: Point, color: Colors):
+    """
+        Draw a square in `window` at `pos` with `color`
+    """
+
+    window.attron(curses.color_pair(color))
+    window.addstr(pos.y + 1, pos.x * 2 + 1, "  ")
+    window.attroff(curses.color_pair(color))
 
 
 def game_loop(screen, window):
