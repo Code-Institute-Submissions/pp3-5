@@ -25,6 +25,7 @@ class Direction(enum.IntEnum):
     DOWN = 1
     LEFT = 2
     RIGHT = 3
+    NONE = -1
 
 
 class Colors(enum.IntEnum):
@@ -54,8 +55,8 @@ class Snake:
     def __init__(self):
         self.head = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
 
-        # set initial direction to right
-        self.prev_input = Direction.RIGHT
+        # leave the snake stationary at the start
+        self.prev_input = Direction.NONE
         self.cur_input = None
 
     def update(self, frame_count, inputs):
