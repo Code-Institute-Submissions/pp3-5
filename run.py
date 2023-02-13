@@ -104,6 +104,8 @@ class Snake:
             tail.y = self.head.y
             self.body_segments.insert(1, tail)
 
+        prev_head = self.head.copy()
+
         # move head based on direction passed in
         if direction == Direction.UP:
             self.head.y -= 1
@@ -117,6 +119,10 @@ class Snake:
         # clamp snake position to stay within the game window
         self.head.x = clamp(self.head.x, 0, GAME_WIDTH - 1)
         self.head.y = clamp(self.head.y, 0, GAME_HEIGHT - 1)
+
+        # the snake dies if it hits a wall (if the above clamps succeed)
+        if self.head == prev_head and direction != Direction.NONE:
+            self.is_dead = True
 
         # the snake dies if it crashes into itself
         if self.head in self.body_segments[1:]:
