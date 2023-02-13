@@ -158,7 +158,7 @@ class Apple:
         )
 
         # ensure the apple doesn't overlap the snake
-        while self.pos == snake.head:
+        while self.pos in snake.body_segments:
             self.pos = Point(
                 random.randrange(0, GAME_WIDTH),
                 random.randrange(0, GAME_HEIGHT)
