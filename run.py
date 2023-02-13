@@ -47,6 +47,13 @@ class Point:
     x: int
     y: int
 
+    def copy(self) -> "Point":
+        """
+            Returns a shallow copy of this point
+        """
+
+        return Point(self.x, self.y)
+
 
 class Snake:
     """
@@ -55,6 +62,8 @@ class Snake:
 
     def __init__(self):
         self.head = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
+        self.body_segments: List[Point] = [self.head]
+        self.is_dead = False
 
         # leave the snake stationary at the start
         self.prev_input = Direction.NONE
@@ -87,6 +96,15 @@ class Snake:
             Move the snake's head in a direction, and have its body follow it
         """
 
+        # body follows after head by moving the last segment to the head's
+        # position on the previous frame
+        if len(self.body_segments) > 1:
+            tail = self.body_segments.pop()
+            tail.x = self.head.x
+            tail.y = self.head.y
+            self.body_segments.insert(1, tail)
+
+        # move head based on direction passed in
         if direction == Direction.UP:
             self.head.y -= 1
         elif direction == Direction.DOWN:
@@ -100,12 +118,25 @@ class Snake:
         self.head.x = clamp(self.head.x, 0, GAME_WIDTH - 1)
         self.head.y = clamp(self.head.y, 0, GAME_HEIGHT - 1)
 
+        # the snake dies if it crashes into itself
+        if self.head in self.body_segments[1:]:
+            self.is_dead = True
+
     def draw(self, window):
         """
             Draw the snake to the window
         """
 
         draw_square(window, self.head, Colors.SNAKE)
+        for segment in self.body_segments:
+            draw_square(window, segment, Colors.SNAKE)
+
+    def add_segment(self, pos: Point):
+        """
+            Add a segment to the snake's body
+        """
+
+        self.body_segments.append(Point(pos.x, pos.y))
 
 
 class Apple:
@@ -214,9 +245,11 @@ def game_loop(screen, window):
         running = handle_input(k, inputs)
 
         # update the snake and apple
-        snake.update(frame_count, inputs)
-        if snake.head == apple.pos:
-            apple.set_new_pos(snake)
+        if not snake.is_dead:
+            snake.update(frame_count, inputs)
+            if snake.head == apple.pos:
+                apple.set_new_pos(snake)
+                snake.add_segment(snake.head)
 
         # draw the snake and apple to the window
         snake.draw(window)
