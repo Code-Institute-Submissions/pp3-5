@@ -243,7 +243,7 @@ def game_loop(screen, window):
         frame_start = time.time()
 
         # clear the window
-        window.clear()
+        window.erase()
         window.border("|", "|", "-", "-", "+", "+", "+", "+")
 
         # read the player input
@@ -279,7 +279,7 @@ def main(screen):
     """
 
     # initialize the screen
-    screen.clear()
+    screen.erase()
     screen.refresh()
 
     # make `getch` non-blocking
@@ -303,7 +303,7 @@ def main(screen):
     window_x = screen_width // 2 - GAME_WIDTH // 2
 
     game_window = screen.subwin(window_h, window_w, window_y, window_x)
-    game_window.clear()
+    game_window.erase()
     game_window.border("|", "|", "-", "-", "+", "+", "+", "+")
     game_window.refresh()
 
