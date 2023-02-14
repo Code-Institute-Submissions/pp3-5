@@ -6,7 +6,7 @@ import curses
 import enum
 import random
 import time
-from typing import List
+from typing import List, Tuple
 from dataclasses import dataclass
 
 
@@ -82,7 +82,143 @@ class Segment:
             Draw the segment to the screen
         """
 
-        draw_square(window, self.pos, Colors.SNAKE)
+        window.draw_square(self.pos, Colors.SNAKE)
+
+
+# +----------------------------------------------------+
+# |                      WINDOWS                       |
+# +----------------------------------------------------+
+
+
+class Window:
+    """
+        Thin wrapper around `curses._CursesWindow`
+    """
+
+    def __init__(
+            self,
+            screen,
+            height: int,
+            width: int,
+            y: int,
+            x: int,
+            *,
+            has_border: bool = True):
+        self.win = screen.subwin(height, width, y, x)
+        self.has_border = has_border
+
+    def clear(self):
+        """
+            Clear the window, redrawing its border if necessary
+        """
+
+        self.win.erase()
+        if self.has_border:
+            self.win.border(*BORDER_CHARS)
+
+    def refresh(self):
+        """
+            Refresh the window
+        """
+
+        self.win.refresh()
+
+    def write(self, pos: Tuple[int, int], text: str):
+        """
+            Write `text` in a window at position `pos`
+        """
+
+        self.win.attron(curses.color_pair(Colors.TEXT))
+        self.win.addstr(*pos, text)
+        self.win.attroff(curses.color_pair(Colors.TEXT))
+
+    @property
+    def size(self) -> Tuple[int, int]:
+        """
+            The size (x, y) of the window
+        """
+
+        y, x = self.win.getmaxyx()
+        return (x, y)
+
+
+class GameWindow(Window):
+    """
+        The game window. Contains the snake and the apple
+    """
+
+    def __init__(self, screen):
+        screen_height, screen_width = screen.getmaxyx()
+
+        height = GAME_HEIGHT + 2
+        width = GAME_WIDTH * 2 + 2
+        y = screen_height // 2 - GAME_HEIGHT // 2
+        x = screen_width // 2 - GAME_WIDTH
+
+        super().__init__(screen, height, width, y, x)
+
+    def draw_square(self, pos: Point, color: Colors):
+        """
+            Draw a square in `window` at `pos` with `color`
+        """
+
+        self.win.attron(curses.color_pair(color))
+        self.win.addstr(pos.y + 1, pos.x * 2 + 1, "  ")
+        self.win.attroff(curses.color_pair(color))
+
+    def draw(self, snake: "Snake", apple: "Apple"):
+        """
+            Draw the game window (the snake and the apple)
+        """
+
+        self.clear()
+
+        snake.draw(self)
+        apple.draw(self)
+
+        self.refresh()
+
+
+class ScoreWindow(Window):
+    """
+        The score window. Contains the title and the score counter
+    """
+
+    def __init__(self, screen):
+        screen_height, screen_width = screen.getmaxyx()
+
+        height = 3
+        width = GAME_WIDTH * 2 + 2
+        y = screen_height // 2 - GAME_HEIGHT // 2 - 2
+        x = screen_width // 2 - GAME_WIDTH
+
+        super().__init__(screen, height, width, y, x)
+
+    def draw(self, score: int):
+        """
+            Write the player's score in the score subwindow
+
+            Example:
+            +--------------------+
+            |  SCORE   |   13    |
+            +--------------------+
+        """
+
+        self.clear()
+
+        (x, _y) = self.size
+        center = x // 2
+
+        # write the word "SCORE" in the left half, center aligned
+        self.write((1, 1), f"{'SCORE': ^{center - 1}}")
+
+        # write a pipe character in the middle as a separator
+        self.write((1, center), "|")
+
+        # write the score in the right half, center aligned
+        self.write((1, center + 1), f"{score: ^{center - 2}}")
+
+        self.refresh()
 
 
 # +----------------------------------------------------+
@@ -95,10 +231,10 @@ class Game:
         The whole game state. Controls the gameplay, graphics, etc.
     """
 
-    def __init__(self, screen, game_win, score_win):
+    def __init__(self, screen):
         self.screen = screen
-        self.game_win = game_win
-        self.score_win = score_win
+        self.game_win = GameWindow(screen)
+        self.score_win = ScoreWindow(screen)
 
         self.snake = Snake()
         self.apple = Apple(self.snake)
@@ -137,22 +273,8 @@ class Game:
             Update the game's graphics: the snake, apple, score, windows, etc.
         """
 
-        # clear the screen
-        self.game_win.erase()
-        self.game_win.border(*BORDER_CHARS)
-        self.score_win.erase()
-        self.score_win.border(*BORDER_CHARS)
-
-        # draw the snake and apple to the window
-        self.snake.draw(self.game_win)
-        self.apple.draw(self.game_win)
-
-        # update the score
-        draw_score(self.score_win, self.score)
-
-        # update the display with what has been drawn
-        self.game_win.refresh()
-        self.score_win.refresh()
+        self.game_win.draw(self.snake, self.apple)
+        self.score_win.draw(self.score)
 
     def update(self) -> bool:
         """
@@ -319,7 +441,7 @@ class Apple:
             Draw the apple to the window
         """
 
-        draw_square(window, self.pos, Colors.APPLE)
+        window.draw_square(self.pos, Colors.APPLE)
 
 
 # +----------------------------------------------------+
@@ -339,43 +461,6 @@ def clamp(num: int, lower: int, upper: int) -> int:
         return lower
 
     return num
-
-
-def draw_square(window, pos: Point, color: Colors):
-    """
-        Draw a square in `window` at `pos` with `color`
-    """
-
-    window.attron(curses.color_pair(color))
-    window.addstr(pos.y + 1, pos.x * 2 + 1, "  ")
-    window.attroff(curses.color_pair(color))
-
-
-def draw_score(score_win, score: int):
-    """
-        Write the player's score in the score subwindow
-
-        Example:
-        +--------------------+
-        |  SCORE   |   13    |
-        +--------------------+
-    """
-
-    _y, x = score_win.getmaxyx()
-    center = x // 2
-
-    score_win.attron(curses.color_pair(Colors.TEXT))
-
-    # write the word "SCORE" in the left half, center aligned
-    score_win.addstr(1, 1, f"{'SCORE': ^{center - 1}}")
-
-    # write a pipe character in the middle as a separator
-    score_win.addstr(1, center, "|")
-
-    # write the score in the right half, center aligned
-    score_win.addstr(1, center + 1, f"{score: ^{center - 2}}")
-
-    score_win.attroff(curses.color_pair(Colors.TEXT))
 
 
 # +----------------------------------------------------+
@@ -403,24 +488,7 @@ def main(screen):
     curses.init_pair(Colors.SNAKE, curses.COLOR_GREEN, curses.COLOR_GREEN)
     curses.init_pair(Colors.APPLE, curses.COLOR_RED, curses.COLOR_RED)
 
-    # get screen size
-    screen_height, screen_width = screen.getmaxyx()
-
-    # initialize game subwindow with border
-    game_h = GAME_HEIGHT + 2
-    game_w = GAME_WIDTH * 2 + 2
-    game_y = screen_height // 2 - GAME_HEIGHT // 2
-    game_x = screen_width // 2 - GAME_WIDTH
-    game_win = screen.subwin(game_h, game_w, game_y, game_x)
-
-    # initialize score subwindow with border
-    score_h = 3
-    score_w = game_w
-    score_y = game_y - 2
-    score_x = game_x
-    score_win = screen.subwin(score_h, score_w, score_y, score_x)
-
-    game = Game(screen, game_win, score_win)
+    game = Game(screen)
 
     try:
         # update the game until the player quits
