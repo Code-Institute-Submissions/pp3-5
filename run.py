@@ -481,7 +481,7 @@ def main(screen):
     screen.nodelay(1)
 
     # turn off the cursor
-    curses.curs_set(0)
+    # curses.curs_set(0)
 
     # initialize colors used for the game
     curses.init_pair(Colors.TEXT, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -496,7 +496,8 @@ def main(screen):
             pass
     finally:
         # turn the cursor back on after the game ends
-        curses.curs_set(1)
+        # curses.curs_set(1)
+        pass
 
 
 if __name__ == "__main__":
