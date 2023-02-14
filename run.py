@@ -10,11 +10,21 @@ from typing import List
 from dataclasses import dataclass
 
 
+# +----------------------------------------------------+
+# |                     CONSTANTS                      |
+# +----------------------------------------------------+
+
+
 FPS = 60
 GAME_WIDTH = 15
 GAME_HEIGHT = 10
 SNAKE_MOVE_DELAY = 10
 BORDER_CHARS = ("|", "|", "-", "-", "+", "+", "+", "+")
+
+
+# +----------------------------------------------------+
+# |                  UTILITY CLASSES                   |
+# +----------------------------------------------------+
 
 
 class Direction(enum.IntEnum):
@@ -73,6 +83,11 @@ class Segment:
         """
 
         draw_square(window, self.pos, Colors.SNAKE)
+
+
+# +----------------------------------------------------+
+# |                    MAIN CLASSES                    |
+# +----------------------------------------------------+
 
 
 class Snake:
@@ -212,6 +227,11 @@ class Apple:
         draw_square(window, self.pos, Colors.APPLE)
 
 
+# +----------------------------------------------------+
+# |                 UTILITY FUNCTIONS                  |
+# +----------------------------------------------------+
+
+
 def clamp(num: int, lower: int, upper: int) -> int:
     """
         Clamp `num` between `lower` and `upper`
@@ -224,6 +244,11 @@ def clamp(num: int, lower: int, upper: int) -> int:
         return lower
 
     return num
+
+
+# +----------------------------------------------------+
+# |                  MAIN FUNCTIONS                    |
+# +----------------------------------------------------+
 
 
 def handle_input(k: int, inputs: List[Direction]) -> bool:
@@ -340,6 +365,11 @@ def game_loop(screen, game_win, score_win):
             time.sleep(1 / FPS - frame_delta)
 
         frame_count += 1
+
+
+# +----------------------------------------------------+
+# |                PROGRAM ENTRYPOINT                  |
+# +----------------------------------------------------+
 
 
 def main(screen):
