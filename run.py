@@ -115,14 +115,6 @@ class Snake:
             Move the snake's head in a direction, and have its body follow it
         """
 
-        # body follows after head by moving the last segment to the head's
-        # position on the previous frame
-        if len(self.body_segments) > 1:
-            tail = self.body_segments.pop()
-            tail.pos.x = self.head.pos.x
-            tail.pos.y = self.head.pos.y
-            self.body_segments.insert(1, tail)
-
         prev_head = self.head.pos.copy()
 
         # move head based on direction passed in
@@ -142,6 +134,15 @@ class Snake:
         # the snake dies if it hits a wall (if the above clamps succeed)
         if self.head.pos == prev_head and direction != Direction.NONE:
             self.is_dead = True
+            return
+
+        # body follows after head by moving the last segment to the head's
+        # position on the previous frame
+        if len(self.body_segments) > 1:
+            tail = self.body_segments.pop()
+            tail.pos.x = prev_head.x
+            tail.pos.y = prev_head.y
+            self.body_segments.insert(1, tail)
 
         # the snake dies if it crashes into itself
         if self.head in self.body_segments[1:]:
