@@ -90,6 +90,101 @@ class Segment:
 # +----------------------------------------------------+
 
 
+class Game:
+    """
+        The whole game state. Controls the gameplay, graphics, etc.
+    """
+
+    def __init__(self, screen, game_win, score_win):
+        self.screen = screen
+        self.game_win = game_win
+        self.score_win = score_win
+
+        self.snake = Snake()
+        self.apple = Apple(self.snake)
+
+        # number of frames since the game started
+        self.frame_count = 0
+        self.score = 0
+        self.inputs: List[Direction] = []
+
+    def handle_input(self) -> bool:
+        """
+            Handle the player's input, adding a direction to the
+            input queue if necessary
+        """
+
+        k = self.screen.getch()
+
+        # if the player presses q, close the game
+        if k == ord("q"):
+            return False
+
+        # add the player input direction to the input queue
+        if k == curses.KEY_UP:
+            self.inputs.append(Direction.UP)
+        elif k == curses.KEY_DOWN:
+            self.inputs.append(Direction.DOWN)
+        elif k == curses.KEY_LEFT:
+            self.inputs.append(Direction.LEFT)
+        elif k == curses.KEY_RIGHT:
+            self.inputs.append(Direction.RIGHT)
+
+        return True
+
+    def draw(self):
+        """
+            Update the game's graphics: the snake, apple, score, windows, etc.
+        """
+
+        # clear the screen
+        self.game_win.erase()
+        self.game_win.border(*BORDER_CHARS)
+        self.score_win.erase()
+        self.score_win.border(*BORDER_CHARS)
+
+        # draw the snake and apple to the window
+        self.snake.draw(self.game_win)
+        self.apple.draw(self.game_win)
+
+        # update the score
+        draw_score(self.score_win, self.score)
+
+        # update the display with what has been drawn
+        self.game_win.refresh()
+        self.score_win.refresh()
+
+    def update(self) -> bool:
+        """
+            Update the game's state
+        """
+
+        frame_start = time.time()
+
+        # read the player input
+        running = self.handle_input()
+
+        # update the snake and apple
+        if not self.snake.is_dead:
+            self.snake.update(self.frame_count, self.inputs)
+            if self.snake.head.pos == self.apple.pos:
+                self.apple.set_new_pos(self.snake)
+                self.snake.add_segment(self.snake.head)
+                self.score += 1
+
+        self.draw()
+
+        # limit framerate to `FPS`
+        frame_end = time.time()
+        frame_delta = frame_end - frame_start
+        if frame_delta < 1 / FPS:
+            time.sleep(1 / FPS - frame_delta)
+
+        self.frame_count += 1
+
+        return running
+
+
 class Snake:
     """
         The snake that the player controls using the arrow keys
@@ -251,29 +346,6 @@ def clamp(num: int, lower: int, upper: int) -> int:
 # +----------------------------------------------------+
 
 
-def handle_input(k: int, inputs: List[Direction]) -> bool:
-    """
-        Handle the player's input, adding a direction to the
-        input queue if necessary
-    """
-
-    # if the player presses q, close the game
-    if k == ord("q"):
-        return False
-
-    # add the player input direction to the input queue
-    if k == curses.KEY_UP:
-        inputs.append(Direction.UP)
-    elif k == curses.KEY_DOWN:
-        inputs.append(Direction.DOWN)
-    elif k == curses.KEY_LEFT:
-        inputs.append(Direction.LEFT)
-    elif k == curses.KEY_RIGHT:
-        inputs.append(Direction.RIGHT)
-
-    return True
-
-
 def draw_square(window, pos: Point, color: Colors):
     """
         Draw a square in `window` at `pos` with `color`
@@ -309,62 +381,6 @@ def draw_score(score_win, score: int):
     score_win.addstr(1, center + 1, f"{score: ^{center - 2}}")
 
     score_win.attroff(curses.color_pair(Colors.TEXT))
-
-
-def game_loop(screen, game_win, score_win):
-    """
-        Main game loop, handles all game updates and drawing to the game window
-    """
-
-    snake = Snake()
-    apple = Apple(snake)
-
-    # number of frames since the game started
-    frame_count = 0
-    score = 0
-
-    inputs: List[Direction] = []
-
-    running = True
-    while running:
-        frame_start = time.time()
-
-        # clear the window
-        game_win.erase()
-        game_win.border(*BORDER_CHARS)
-        score_win.erase()
-        score_win.border(*BORDER_CHARS)
-
-        # read the player input
-        k = screen.getch()
-        running = handle_input(k, inputs)
-
-        # update the snake and apple
-        if not snake.is_dead:
-            snake.update(frame_count, inputs)
-            if snake.head.pos == apple.pos:
-                apple.set_new_pos(snake)
-                snake.add_segment(snake.head)
-                score += 1
-
-        # draw the snake and apple to the window
-        snake.draw(game_win)
-        apple.draw(game_win)
-
-        # update the score
-        draw_score(score_win, score)
-
-        # update the display with what has been drawn
-        game_win.refresh()
-        score_win.refresh()
-
-        # limit framerate to `FPS`
-        frame_end = time.time()
-        frame_delta = frame_end - frame_start
-        if frame_delta < 1 / FPS:
-            time.sleep(1 / FPS - frame_delta)
-
-        frame_count += 1
 
 
 # +----------------------------------------------------+
@@ -417,10 +433,14 @@ def main(screen):
     score_win.border(*BORDER_CHARS)
     score_win.refresh()
 
-    # turn the cursor back on after the game ends
+    game = Game(screen, game_win, score_win)
+
     try:
-        game_loop(screen, game_win, score_win)
+        # update the game until the player quits
+        while game.update():
+            pass
     finally:
+        # turn the cursor back on after the game ends
         curses.curs_set(1)
 
 
