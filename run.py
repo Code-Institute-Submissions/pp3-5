@@ -11,9 +11,10 @@ from dataclasses import dataclass
 
 
 FPS = 60
-GAME_WIDTH = 10
+GAME_WIDTH = 15
 GAME_HEIGHT = 10
 SNAKE_MOVE_DELAY = 10
+BORDER_CHARS = ("|", "|", "-", "-", "+", "+", "+", "+")
 
 
 class Direction(enum.IntEnum):
@@ -305,9 +306,9 @@ def game_loop(screen, game_win, score_win):
 
         # clear the window
         game_win.erase()
-        game_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+        game_win.border(*BORDER_CHARS)
         score_win.erase()
-        score_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+        score_win.border(*BORDER_CHARS)
 
         # read the player input
         k = screen.getch()
@@ -372,7 +373,7 @@ def main(screen):
 
     game_win = screen.subwin(game_h, game_w, game_y, game_x)
     game_win.erase()
-    game_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+    game_win.border(*BORDER_CHARS)
     game_win.refresh()
 
     # initialize score subwindow with border
@@ -383,7 +384,7 @@ def main(screen):
 
     score_win = screen.subwin(score_h, score_w, score_y, score_x)
     score_win.erase()
-    score_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+    score_win.border(*BORDER_CHARS)
     score_win.refresh()
 
     # turn the cursor back on after the game ends
