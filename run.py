@@ -333,7 +333,7 @@ def main(screen):
     window_h = GAME_HEIGHT + 2
     window_w = GAME_WIDTH * 2 + 2
     window_y = screen_height // 2 - GAME_HEIGHT // 2
-    window_x = screen_width // 2 - GAME_WIDTH // 2
+    window_x = screen_width // 2 - GAME_WIDTH
 
     game_window = screen.subwin(window_h, window_w, window_y, window_x)
     game_window.erase()
