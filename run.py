@@ -55,14 +55,33 @@ class Point:
         return Point(self.x, self.y)
 
 
+class Segment:
+    """
+        A segment of the snake's body
+    """
+
+    def __init__(self, pos: Point):
+        self.pos = pos
+
+    def __eq__(self, other):
+        return self.pos == other.pos
+
+    def draw(self, window):
+        """
+            Draw the segment to the screen
+        """
+
+        draw_square(window, self.pos, Colors.SNAKE)
+
+
 class Snake:
     """
         The snake that the player controls using the arrow keys
     """
 
     def __init__(self):
-        self.head = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
-        self.body_segments: List[Point] = [self.head]
+        self.head = Segment(Point(GAME_HEIGHT // 2, GAME_WIDTH // 2))
+        self.body_segments: List[Segment] = [self.head]
         self.is_dead = False
 
         # leave the snake stationary at the start
@@ -100,28 +119,28 @@ class Snake:
         # position on the previous frame
         if len(self.body_segments) > 1:
             tail = self.body_segments.pop()
-            tail.x = self.head.x
-            tail.y = self.head.y
+            tail.pos.x = self.head.pos.x
+            tail.pos.y = self.head.pos.y
             self.body_segments.insert(1, tail)
 
-        prev_head = self.head.copy()
+        prev_head = self.head.pos.copy()
 
         # move head based on direction passed in
         if direction == Direction.UP:
-            self.head.y -= 1
+            self.head.pos.y -= 1
         elif direction == Direction.DOWN:
-            self.head.y += 1
+            self.head.pos.y += 1
         elif direction == Direction.LEFT:
-            self.head.x -= 1
+            self.head.pos.x -= 1
         elif direction == Direction.RIGHT:
-            self.head.x += 1
+            self.head.pos.x += 1
 
         # clamp snake position to stay within the game window
-        self.head.x = clamp(self.head.x, 0, GAME_WIDTH - 1)
-        self.head.y = clamp(self.head.y, 0, GAME_HEIGHT - 1)
+        self.head.pos.x = clamp(self.head.pos.x, 0, GAME_WIDTH - 1)
+        self.head.pos.y = clamp(self.head.pos.y, 0, GAME_HEIGHT - 1)
 
         # the snake dies if it hits a wall (if the above clamps succeed)
-        if self.head == prev_head and direction != Direction.NONE:
+        if self.head.pos == prev_head and direction != Direction.NONE:
             self.is_dead = True
 
         # the snake dies if it crashes into itself
@@ -133,16 +152,28 @@ class Snake:
             Draw the snake to the window
         """
 
-        draw_square(window, self.head, Colors.SNAKE)
+        self.head.draw(window)
         for segment in self.body_segments:
-            draw_square(window, segment, Colors.SNAKE)
+            segment.draw(window)
 
-    def add_segment(self, pos: Point):
+    def add_segment(self, segment: Segment):
         """
             Add a segment to the snake's body
         """
 
-        self.body_segments.append(Point(pos.x, pos.y))
+        pos = segment.pos.copy()
+        self.body_segments.append(Segment(pos))
+
+    def check_overlap(self, pos: Point) -> bool:
+        """
+            Check if a point `pos` overlaps with the snake's body
+        """
+
+        for segment in self.body_segments:
+            if segment.pos == pos:
+                return True
+
+        return False
 
 
 class Apple:
@@ -164,7 +195,7 @@ class Apple:
         )
 
         # ensure the apple doesn't overlap the snake
-        while self.pos in snake.body_segments:
+        while snake.check_overlap(self.pos):
             self.pos = Point(
                 random.randrange(0, GAME_WIDTH),
                 random.randrange(0, GAME_HEIGHT)
@@ -253,7 +284,7 @@ def game_loop(screen, window):
         # update the snake and apple
         if not snake.is_dead:
             snake.update(frame_count, inputs)
-            if snake.head == apple.pos:
+            if snake.head.pos == apple.pos:
                 apple.set_new_pos(snake)
                 snake.add_segment(snake.head)
 
