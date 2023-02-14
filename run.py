@@ -416,22 +416,14 @@ def main(screen):
     game_w = GAME_WIDTH * 2 + 2
     game_y = screen_height // 2 - GAME_HEIGHT // 2
     game_x = screen_width // 2 - GAME_WIDTH
-
     game_win = screen.subwin(game_h, game_w, game_y, game_x)
-    game_win.erase()
-    game_win.border(*BORDER_CHARS)
-    game_win.refresh()
 
     # initialize score subwindow with border
     score_h = 3
     score_w = game_w
     score_y = game_y - 2
     score_x = game_x
-
     score_win = screen.subwin(score_h, score_w, score_y, score_x)
-    score_win.erase()
-    score_win.border(*BORDER_CHARS)
-    score_win.refresh()
 
     game = Game(screen, game_win, score_win)
 
