@@ -276,8 +276,6 @@ class Game:
         self.game_win.draw(self.snake, self.apple)
         self.score_win.draw(self.score)
 
-        self.screen.move(0, 0)
-
     def update(self) -> bool:
         """
             Update the game's state
@@ -482,8 +480,12 @@ def main(screen):
     # make `getch` non-blocking
     screen.nodelay(1)
 
-    # turn off the cursor
-    # curses.curs_set(0)
+    # try to turn off the cursor
+    try:
+        curses.curs_set(0)
+        supports_invisible_cursor = True
+    except curses.error:
+        supports_invisible_cursor = False
 
     # initialize colors used for the game
     curses.init_pair(Colors.TEXT, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -498,8 +500,8 @@ def main(screen):
             pass
     finally:
         # turn the cursor back on after the game ends
-        # curses.curs_set(1)
-        pass
+        if supports_invisible_cursor:
+            curses.curs_set(1)
 
 
 if __name__ == "__main__":
