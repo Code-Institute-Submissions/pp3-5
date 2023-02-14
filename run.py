@@ -276,6 +276,8 @@ class Game:
         self.game_win.draw(self.snake, self.apple)
         self.score_win.draw(self.score)
 
+        self.screen.move(0, 0)
+
     def update(self) -> bool:
         """
             Update the game's state
