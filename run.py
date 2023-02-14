@@ -136,6 +136,11 @@ class Snake:
             self.is_dead = True
             return
 
+        # the snake dies if it crashes into itself
+        if self.head in self.body_segments[1:-1]:
+            self.is_dead = True
+            return
+
         # body follows after head by moving the last segment to the head's
         # position on the previous frame
         if len(self.body_segments) > 1:
@@ -143,10 +148,6 @@ class Snake:
             tail.pos.x = prev_head.x
             tail.pos.y = prev_head.y
             self.body_segments.insert(1, tail)
-
-        # the snake dies if it crashes into itself
-        if self.head in self.body_segments[1:]:
-            self.is_dead = True
 
     def draw(self, window):
         """
