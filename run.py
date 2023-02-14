@@ -11,8 +11,8 @@ from dataclasses import dataclass
 
 
 FPS = 60
-GAME_WIDTH = 20
-GAME_HEIGHT = 20
+GAME_WIDTH = 10
+GAME_HEIGHT = 10
 SNAKE_MOVE_DELAY = 10
 
 
@@ -258,7 +258,34 @@ def draw_square(window, pos: Point, color: Colors):
     window.attroff(curses.color_pair(color))
 
 
-def game_loop(screen, window):
+def draw_score(score_win, score: int):
+    """
+        Write the player's score in the score subwindow
+
+        Example:
+        +--------------------+
+        |  SCORE   |   13    |
+        +--------------------+
+    """
+
+    _y, x = score_win.getmaxyx()
+    center = x // 2
+
+    score_win.attron(curses.color_pair(Colors.TEXT))
+
+    # write the word "SCORE" in the left half, center aligned
+    score_win.addstr(1, 1, f"{'SCORE': ^{center - 1}}")
+
+    # write a pipe character in the middle as a separator
+    score_win.addstr(1, center, "|")
+
+    # write the score in the right half, center aligned
+    score_win.addstr(1, center + 1, f"{score: ^{center - 2}}")
+
+    score_win.attroff(curses.color_pair(Colors.TEXT))
+
+
+def game_loop(screen, game_win, score_win):
     """
         Main game loop, handles all game updates and drawing to the game window
     """
@@ -268,6 +295,7 @@ def game_loop(screen, window):
 
     # number of frames since the game started
     frame_count = 0
+    score = 0
 
     inputs: List[Direction] = []
 
@@ -276,8 +304,10 @@ def game_loop(screen, window):
         frame_start = time.time()
 
         # clear the window
-        window.erase()
-        window.border("|", "|", "-", "-", "+", "+", "+", "+")
+        game_win.erase()
+        game_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+        score_win.erase()
+        score_win.border("|", "|", "-", "-", "+", "+", "+", "+")
 
         # read the player input
         k = screen.getch()
@@ -289,13 +319,18 @@ def game_loop(screen, window):
             if snake.head.pos == apple.pos:
                 apple.set_new_pos(snake)
                 snake.add_segment(snake.head)
+                score += 1
 
         # draw the snake and apple to the window
-        snake.draw(window)
-        apple.draw(window)
+        snake.draw(game_win)
+        apple.draw(game_win)
+
+        # update the score
+        draw_score(score_win, score)
 
         # update the display with what has been drawn
-        window.refresh()
+        game_win.refresh()
+        score_win.refresh()
 
         # limit framerate to `FPS`
         frame_end = time.time()
@@ -330,19 +365,30 @@ def main(screen):
     screen_height, screen_width = screen.getmaxyx()
 
     # initialize game subwindow with border
-    window_h = GAME_HEIGHT + 2
-    window_w = GAME_WIDTH * 2 + 2
-    window_y = screen_height // 2 - GAME_HEIGHT // 2
-    window_x = screen_width // 2 - GAME_WIDTH
+    game_h = GAME_HEIGHT + 2
+    game_w = GAME_WIDTH * 2 + 2
+    game_y = screen_height // 2 - GAME_HEIGHT // 2
+    game_x = screen_width // 2 - GAME_WIDTH
 
-    game_window = screen.subwin(window_h, window_w, window_y, window_x)
-    game_window.erase()
-    game_window.border("|", "|", "-", "-", "+", "+", "+", "+")
-    game_window.refresh()
+    game_win = screen.subwin(game_h, game_w, game_y, game_x)
+    game_win.erase()
+    game_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+    game_win.refresh()
+
+    # initialize score subwindow with border
+    score_h = 3
+    score_w = game_w
+    score_y = game_y - 2
+    score_x = game_x
+
+    score_win = screen.subwin(score_h, score_w, score_y, score_x)
+    score_win.erase()
+    score_win.border("|", "|", "-", "-", "+", "+", "+", "+")
+    score_win.refresh()
 
     # turn the cursor back on after the game ends
     try:
-        game_loop(screen, game_window)
+        game_loop(screen, game_win, score_win)
     finally:
         curses.curs_set(1)
 
