@@ -341,11 +341,6 @@ def clamp(num: int, lower: int, upper: int) -> int:
     return num
 
 
-# +----------------------------------------------------+
-# |                  MAIN FUNCTIONS                    |
-# +----------------------------------------------------+
-
-
 def draw_square(window, pos: Point, color: Colors):
     """
         Draw a square in `window` at `pos` with `color`
