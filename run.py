@@ -253,10 +253,9 @@ class HighScoreWindow(Window):
         self.clear()
 
         (x, y) = self.size
-        center = x // 2
 
         # write the word "HISCORE" at the top, center aligned
-        self.write((1, 2), f"{'HISCORE': ^{center - 1}}")
+        self.write((1, 2), f"{'HISCORE': ^{x - 3}}")
 
         # write a separator below the window title
         self.write((2, 0), "+----+------+")
@@ -275,7 +274,7 @@ class HighScoreWindow(Window):
             row = i + 3
 
             # write the rank and score in the corresponding row
-            self.write((row, 1), f" {rank: >2} |{score: ^4}")
+            self.write((row, 1), f" {rank: >2} | {score: >4} ")
 
         self.refresh()
 
