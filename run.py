@@ -397,15 +397,10 @@ class Game:
 
         self.screen.refresh()
 
-    def update(self) -> bool:
+    def update(self):
         """
             Update the game's state
         """
-
-        frame_start = time.time()
-
-        # read the player input
-        running = self.handle_input()
 
         # update the snake and apple
         self.snake.update(self.inputs)
@@ -416,16 +411,6 @@ class Game:
 
         if self.snake.is_dead() and self.snake.counter == 1:
             self.scores.append(self.score)
-
-        self.draw()
-
-        # limit framerate to `FPS`
-        frame_end = time.time()
-        frame_delta = frame_end - frame_start
-        if frame_delta < 1 / FPS:
-            time.sleep(1 / FPS - frame_delta)
-
-        return running
 
 
 class Snake:
@@ -685,9 +670,23 @@ def main(screen):
     game = Game(screen)
 
     try:
-        # update the game until the player quits
-        while game.update():
-            pass
+        # main game loop
+        running = True
+        while running:
+            frame_start = time.time()
+
+            # read the player input
+            running = game.handle_input()
+
+            game.update()
+            game.draw()
+
+            # limit framerate to `FPS`
+            frame_end = time.time()
+            frame_delta = frame_end - frame_start
+            if frame_delta < 1 / FPS:
+                time.sleep(1 / FPS - frame_delta)
+
     finally:
         # turn the cursor back on after the game ends
         if supports_invisible_cursor:
