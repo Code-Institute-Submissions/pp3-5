@@ -279,6 +279,39 @@ class HighScoreWindow(Window):
         self.refresh()
 
 
+class MessageWindow(Window):
+    """
+        The message window. Contains the finish message and controls
+    """
+
+    def __init__(self, screen):
+        screen_height, screen_width = screen.getmaxyx()
+
+        height = 1
+        width = GAME_WIDTH * 2 + 12
+        y = screen_height // 2 + GAME_HEIGHT // 2 + 3
+        x = screen_width // 2 - GAME_WIDTH - 4
+
+        super().__init__(screen, height, width, y, x, has_border=False)
+
+    def draw(self, is_dead: bool, score: int):
+        """
+            Write the finish message and the controls to the window
+        """
+
+        self.clear()
+
+        (x, _y) = self.size
+
+        if is_dead:
+            message = get_finish_message(score)
+            self.write((0, 0), f"{message} R = RETRY")
+
+        self.write((0, x - 9), "Q = QUIT")
+
+        self.refresh()
+
+
 # +----------------------------------------------------+
 # |                    MAIN CLASSES                    |
 # +----------------------------------------------------+
@@ -295,11 +328,13 @@ class Game:
         game_win = GameWindow(screen)
         score_win = ScoreWindow(screen)
         hiscore_win = HighScoreWindow(screen)
+        message_win = MessageWindow(screen)
 
         self.windows: Dict[str, Window] = {
             "game": game_win,
             "score": score_win,
-            "hiscore": hiscore_win
+            "hiscore": hiscore_win,
+            "message": message_win
         }
 
         self.snake = Snake()
@@ -341,46 +376,6 @@ class Game:
 
         return True
 
-    def get_finish_message(self) -> str:
-        """
-            Returns the message to be presented to the player when
-            the snake dies
-        """
-
-        percentage = self.score / MAX_SCORE
-        if percentage < 0.1:
-            return MESSAGES[0]
-        if percentage < 0.2:
-            return MESSAGES[1]
-        if percentage < 0.5:
-            return MESSAGES[2]
-        if percentage != MAX_SCORE:
-            return MESSAGES[3]
-
-        return MESSAGES[4]
-
-    def draw_controls(self):
-        """
-            Draw the controls and a message when the snake dies
-        """
-
-        screen_height, screen_width = self.screen.getmaxyx()
-
-        self.screen.attron(curses.color_pair(Colors.TEXT))
-
-        y = screen_height // 2 + GAME_HEIGHT // 2 + 3
-        quit_x = screen_width // 2 + GAME_WIDTH
-        message_x = screen_width // 2 - GAME_WIDTH - 4
-
-        if self.snake.is_dead():
-            message = self.get_finish_message()
-
-            self.screen.addstr(y, message_x, f"{message} R = RETRY")
-
-        self.screen.addstr(y, quit_x, "Q = QUIT")
-
-        self.screen.attroff(curses.color_pair(Colors.TEXT))
-
     def draw(self):
         """
             Update the game's graphics: the snake, apple, score, windows, etc.
@@ -391,8 +386,7 @@ class Game:
         self.windows["game"].draw(self.snake, self.apple)
         self.windows["score"].draw(self.score)
         self.windows["hiscore"].draw(self.scores)
-
-        self.draw_controls()
+        self.windows["message"].draw(self.snake.is_dead(), self.score)
 
         self.screen.refresh()
 
@@ -635,6 +629,25 @@ def clamp(num: int, lower: int, upper: int) -> int:
         return lower
 
     return num
+
+
+def get_finish_message(score) -> str:
+    """
+        Returns the message to be presented to the player when
+        the snake dies
+    """
+
+    percentage = score / MAX_SCORE
+    if percentage < 0.1:
+        return MESSAGES[0]
+    if percentage < 0.2:
+        return MESSAGES[1]
+    if percentage < 0.5:
+        return MESSAGES[2]
+    if percentage != MAX_SCORE:
+        return MESSAGES[3]
+
+    return MESSAGES[4]
 
 
 # +----------------------------------------------------+
