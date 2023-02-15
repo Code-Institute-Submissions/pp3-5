@@ -140,6 +140,15 @@ class Window:
         self.win.addstr(*pos, text)
         self.win.attroff(curses.color_pair(Colors.TEXT))
 
+    def draw_square(self, pos: Point, color: Colors):
+        """
+            Draw a square in `window` at `pos` with `color`
+        """
+
+        self.win.attron(curses.color_pair(color))
+        self.win.addstr(pos.y + 1, pos.x * 2 + 1, "  ")
+        self.win.attroff(curses.color_pair(color))
+
     @property
     def size(self) -> Tuple[int, int]:
         """
@@ -164,15 +173,6 @@ class GameWindow(Window):
         x = screen_width // 2 - GAME_WIDTH - 6
 
         super().__init__(screen, height, width, y, x)
-
-    def draw_square(self, pos: Point, color: Colors):
-        """
-            Draw a square in `window` at `pos` with `color`
-        """
-
-        self.win.attron(curses.color_pair(color))
-        self.win.addstr(pos.y + 1, pos.x * 2 + 1, "  ")
-        self.win.attroff(curses.color_pair(color))
 
     def draw(self, snake: "Snake", apple: "Apple"):
         """
