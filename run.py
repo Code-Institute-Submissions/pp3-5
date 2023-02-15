@@ -253,7 +253,7 @@ class HighScoreWindow(Window):
         # write a separator below the window title
         self.write((2, 0), "+----+------+")
 
-        high_scores = sorted(scores)
+        high_scores = sorted(scores, reverse=True)
 
         # iterate over as many high scores as will fit in the window
         for i in range(y - 4):
