@@ -153,7 +153,7 @@ class GameWindow(Window):
         height = GAME_HEIGHT + 2
         width = GAME_WIDTH * 2 + 2
         y = screen_height // 2 - GAME_HEIGHT // 2
-        x = screen_width // 2 - GAME_WIDTH
+        x = screen_width // 2 - GAME_WIDTH - 6
 
         super().__init__(screen, height, width, y, x)
 
@@ -190,7 +190,7 @@ class ScoreWindow(Window):
         height = 3
         width = GAME_WIDTH * 2 + 2
         y = screen_height // 2 - GAME_HEIGHT // 2 - 2
-        x = screen_width // 2 - GAME_WIDTH
+        x = screen_width // 2 - GAME_WIDTH - 6
 
         super().__init__(screen, height, width, y, x)
 
@@ -221,6 +221,57 @@ class ScoreWindow(Window):
         self.refresh()
 
 
+class HighScoreWindow(Window):
+    """
+        The high score window. Contains the player's high scores
+    """
+
+    def __init__(self, screen):
+        screen_height, screen_width = screen.getmaxyx()
+
+        height = GAME_HEIGHT + 4
+        width = 13
+        y = screen_height // 2 - GAME_HEIGHT // 2 - 2
+        x = screen_width // 2 + GAME_WIDTH - 3
+
+        super().__init__(screen, height, width, y, x)
+
+    def draw(self, scores: List[int]):
+        """
+            Write the player's high scores in the high score window
+            to the right of the game window
+        """
+
+        self.clear()
+
+        (x, y) = self.size
+        center = x // 2
+
+        # write the word "HISCORE" at the top, center aligned
+        self.write((1, 2), f"{'HISCORE': ^{center - 1}}")
+
+        # write a separator below the window title
+        self.write((2, 0), "+----+------+")
+
+        high_scores = sorted(scores)
+
+        # iterate over as many high scores as will fit in the window
+        for i in range(y - 4):
+            if i < len(high_scores):
+                score = high_scores[i]
+                rank = i + 1
+            else:
+                score = ""
+                rank = ""
+
+            row = i + 3
+
+            # write the rank and score in the corresponding row
+            self.write((row, 1), f" {rank: >2} |{score: ^4}")
+
+        self.refresh()
+
+
 # +----------------------------------------------------+
 # |                    MAIN CLASSES                    |
 # +----------------------------------------------------+
@@ -235,6 +286,7 @@ class Game:
         self.screen = screen
         self.game_win = GameWindow(screen)
         self.score_win = ScoreWindow(screen)
+        self.hiscore_win = HighScoreWindow(screen)
 
         self.snake = Snake()
         self.apple = Apple(self.snake)
@@ -243,6 +295,7 @@ class Game:
         self.frame_count = 0
         self.score = 0
         self.inputs: List[Direction] = []
+        self.scores: List[int] = []
 
     def handle_input(self) -> bool:
         """
@@ -275,6 +328,7 @@ class Game:
 
         self.game_win.draw(self.snake, self.apple)
         self.score_win.draw(self.score)
+        self.hiscore_win.draw(self.scores)
 
     def update(self) -> bool:
         """
