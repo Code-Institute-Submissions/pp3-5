@@ -18,7 +18,7 @@ from dataclasses import dataclass
 FPS = 30
 GAME_WIDTH = 15
 GAME_HEIGHT = 10
-MAX_SCORE = GAME_WIDTH * GAME_HEIGHT
+MAX_SCORE = GAME_WIDTH * GAME_HEIGHT - 1
 SNAKE_MOVE_DELAY = 5
 BORDER_CHARS = ("|", "|", "-", "-", "+", "+", "+", "+")
 MESSAGES = [
@@ -404,13 +404,21 @@ class Game:
         self.snake.update(self.inputs)
 
         # if the snake's head coincides with the apple, it eats it
-        if self.snake.head.pos == self.apple.pos:
+        if not self.snake.is_dead() and self.snake.head.pos == self.apple.pos:
             # move the apple to a new position
             self.apple.set_new_pos(self.snake)
 
             # increase the snake's length by one segment
             self.snake.add_segment(self.snake.head)
             self.score += 1
+
+        # the program would hang forever if the player collected
+        # `MAX_SCORE` apples, specifically in the `while` loop in
+        # `Apple.set_new_pos`, as every possible position would overlap
+        # with the snake. thus we need to manually set the snake to
+        # dead so that the player can actually win.
+        if self.score == MAX_SCORE:
+            self.snake.change_state(self.snake.State.DEAD)
 
         # if the snake has just died, add the current score
         # to the player's `scores` list
