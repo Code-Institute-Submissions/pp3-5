@@ -300,7 +300,8 @@ class Game:
     def handle_input(self) -> bool:
         """
             Handle the player's input, adding a direction to the
-            input queue if necessary
+            input queue if necessary.
+            Returns False if the player quits the game.
         """
 
         k = self.screen.getch()
@@ -308,6 +309,12 @@ class Game:
         # if the player presses q, close the game
         if k == ord("q"):
             return False
+
+        if k == ord("r") and self.snake.is_dead():
+            self.snake.reset()
+            self.apple.set_new_pos(self.snake)
+            self.score = 0
+            self.inputs = []
 
         # add the player input direction to the input queue
         if k == curses.KEY_UP:
@@ -389,6 +396,18 @@ class Snake:
         # leave the snake stationary at the start
         self.prev_input = Direction.NONE
         self.cur_input = None
+
+    def reset(self):
+        """
+            Reset the snake's state, position and body
+        """
+
+        self.head.pos = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
+        self.body_segments: List[Segment] = [self.head]
+        self.prev_input = Direction.NONE
+        self.cur_input = None
+
+        self.change_state(self.State.WAIT)
 
     def change_state(self, state: State):
         """
