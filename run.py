@@ -292,7 +292,6 @@ class Game:
         self.apple = Apple(self.snake)
 
         # number of frames since the game started
-        self.frame_count = 0
         self.score = 0
         self.inputs: List[Direction] = []
         self.scores: List[int] = []
@@ -364,8 +363,6 @@ class Game:
         frame_delta = frame_end - frame_start
         if frame_delta < 1 / FPS:
             time.sleep(1 / FPS - frame_delta)
-
-        self.frame_count += 1
 
         return running
 
