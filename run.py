@@ -15,10 +15,10 @@ from dataclasses import dataclass
 # +----------------------------------------------------+
 
 
-FPS = 60
+FPS = 30
 GAME_WIDTH = 15
 GAME_HEIGHT = 10
-SNAKE_MOVE_DELAY = 10
+SNAKE_MOVE_DELAY = 5
 BORDER_CHARS = ("|", "|", "-", "-", "+", "+", "+", "+")
 
 
@@ -341,12 +341,14 @@ class Game:
         running = self.handle_input()
 
         # update the snake and apple
-        if not self.snake.is_dead:
-            self.snake.update(self.frame_count, self.inputs)
-            if self.snake.head.pos == self.apple.pos:
-                self.apple.set_new_pos(self.snake)
-                self.snake.add_segment(self.snake.head)
-                self.score += 1
+        self.snake.update(self.inputs)
+        if self.snake.head.pos == self.apple.pos:
+            self.apple.set_new_pos(self.snake)
+            self.snake.add_segment(self.snake.head)
+            self.score += 1
+
+        if self.snake.is_dead() and self.snake.counter == 1:
+            self.scores.append(self.score)
 
         self.draw()
 
@@ -366,40 +368,97 @@ class Snake:
         The snake that the player controls using the arrow keys
     """
 
+    class State(enum.IntEnum):
+        """
+            The snake's current state
+            WAIT: The snake is waiting to move
+            MOVE: The snake is moving based on the player input
+            DEAD: The snake is dead after hitting itself/a wall
+        """
+
+        WAIT = 0
+        MOVE = 1
+        DEAD = 2
+
     def __init__(self):
         self.head = Segment(Point(GAME_HEIGHT // 2, GAME_WIDTH // 2))
         self.body_segments: List[Segment] = [self.head]
-        self.is_dead = False
+        self.state = self.State.WAIT
+        self.counter = 0
 
         # leave the snake stationary at the start
         self.prev_input = Direction.NONE
         self.cur_input = None
 
-    def update(self, frame_count, inputs):
+    def change_state(self, state: State):
+        """
+            Change the snake's state and reset the frame counter
+        """
+
+        self.state = state
+        self.counter = 0
+
+    def update_wait(self):
+        """
+            Update the snake when it's in the WAIT state
+        """
+
+        if self.counter == SNAKE_MOVE_DELAY:
+            self.change_state(self.State.MOVE)
+
+    def update_move(self, inputs: List[Direction]):
+        """
+            Update the snake when it's in the MOVE state
+        """
+
+        # if the player didn't input anything, continue moving in the
+        # same direction
+        self.cur_input = None
+        if len(inputs) == 0:
+            self.cur_input = self.prev_input
+        else:
+            self.cur_input = inputs.pop(0)
+
+        # don't change direction if the snake would turn back on itself
+        if self.cur_input + self.prev_input == 3:
+            self.cur_input = self.prev_input
+
+        # apply the movement direction to the snake
+        is_dead = self.move(self.cur_input)
+        self.prev_input = self.cur_input
+
+        if is_dead:
+            self.change_state(self.State.DEAD)
+        else:
+            self.change_state(self.State.WAIT)
+
+    def update_dead(self):
+        """
+            Update the snake when it's in the DEAD state
+        """
+
+        pass
+
+    def update(self, inputs):
         """
             Update the snake's state based on the inputs
         """
 
-        if frame_count % SNAKE_MOVE_DELAY == 0:
-            # if the player didn't input anything, continue moving in the
-            # same direction
-            self.cur_input = None
-            if len(inputs) == 0:
-                self.cur_input = self.prev_input
-            else:
-                self.cur_input = inputs.pop(0)
+        self.counter += 1
 
-            # don't change direction if the snake would turn back on itself
-            if self.cur_input + self.prev_input == 3:
-                self.cur_input = self.prev_input
+        if self.state == self.State.WAIT:
+            self.update_wait()
 
-            # apply the movement direction to the snake
-            self.move(self.cur_input)
-            self.prev_input = self.cur_input
+        elif self.state == self.State.MOVE:
+            self.update_move(inputs)
 
-    def move(self, direction: Direction):
+        elif self.state == self.State.DEAD:
+            self.update_dead()
+
+    def move(self, direction: Direction) -> bool:
         """
-            Move the snake's head in a direction, and have its body follow it
+            Move the snake's head in a direction, and have its body follow it.
+            Returns True if the snake dies
         """
 
         prev_head = self.head.pos.copy()
@@ -420,13 +479,11 @@ class Snake:
 
         # the snake dies if it hits a wall (if the above clamps succeed)
         if self.head.pos == prev_head and direction != Direction.NONE:
-            self.is_dead = True
-            return
+            return True
 
         # the snake dies if it crashes into itself
         if self.head in self.body_segments[1:-1]:
-            self.is_dead = True
-            return
+            return True
 
         # body follows after head by moving the last segment to the head's
         # position on the previous frame
@@ -435,6 +492,8 @@ class Snake:
             tail.pos.x = prev_head.x
             tail.pos.y = prev_head.y
             self.body_segments.insert(1, tail)
+
+        return False
 
     def draw(self, window):
         """
@@ -463,6 +522,13 @@ class Snake:
                 return True
 
         return False
+
+    def is_dead(self) -> bool:
+        """
+            Returns True if the snake is dead, and False if not
+        """
+
+        return self.state == self.State.DEAD
 
 
 class Apple:
