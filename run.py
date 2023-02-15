@@ -432,13 +432,6 @@ class Snake:
         else:
             self.change_state(self.State.WAIT)
 
-    def update_dead(self):
-        """
-            Update the snake when it's in the DEAD state
-        """
-
-        pass
-
     def update(self, inputs):
         """
             Update the snake's state based on the inputs
@@ -453,7 +446,7 @@ class Snake:
             self.update_move(inputs)
 
         elif self.state == self.State.DEAD:
-            self.update_dead()
+            pass
 
     def move(self, direction: Direction) -> bool:
         """
