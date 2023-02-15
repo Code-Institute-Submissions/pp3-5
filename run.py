@@ -430,7 +430,7 @@ class Snake:
         DEAD = 2
 
     def __init__(self):
-        self.head = Segment(Point(GAME_HEIGHT // 2, GAME_WIDTH // 2))
+        self.head = Segment(Point(GAME_WIDTH // 2, GAME_HEIGHT // 2))
         self.body_segments: List[Segment] = [self.head]
         self.state: self.State = self.State.WAIT
         self.counter = 0
@@ -444,7 +444,7 @@ class Snake:
             Reset the snake's state, position and body
         """
 
-        self.head.pos = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
+        self.head.pos = Point(GAME_WIDTH // 2, GAME_HEIGHT // 2)
         self.body_segments: List[Segment] = [self.head]
         self.prev_input = Direction.NONE
         self.cur_input = Direction.NONE
