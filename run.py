@@ -50,7 +50,7 @@ class Direction(enum.IntEnum):
 
 class Colors(enum.IntEnum):
     """
-        Enum for colors to be used when drawing
+        Enum for color indices to be used when drawing
     """
 
     TEXT = 1
@@ -117,7 +117,7 @@ class Window:
 
     def clear(self):
         """
-            Clear the window, redrawing its border if necessary
+            Clear the window, redrawing its border if it has one
         """
 
         self.win.erase()
@@ -133,7 +133,7 @@ class Window:
 
     def write(self, pos: Tuple[int, int], text: str):
         """
-            Write `text` in a window at position `pos`
+            Write `text` in the window at position `pos`
         """
 
         self.win.attron(curses.color_pair(Colors.TEXT))
@@ -143,7 +143,7 @@ class Window:
     @property
     def size(self) -> Tuple[int, int]:
         """
-            The size (x, y) of the window
+            The size (w, h) of the window
         """
 
         y, x = self.win.getmaxyx()
@@ -340,10 +340,14 @@ class Game:
         self.snake = Snake()
         self.apple = Apple(self.snake)
 
-        # number of frames since the game started
+        # the player's current score this game
         self.score = 0
-        self.inputs: List[Direction] = []
+
+        # all of the player's scores since they started playing
         self.scores: List[int] = []
+
+        # a queue of inputs to be applied to the snake
+        self.inputs: List[Direction] = []
 
     def handle_input(self) -> bool:
         """
@@ -378,7 +382,8 @@ class Game:
 
     def draw(self):
         """
-            Update the game's graphics: the snake, apple, score, windows, etc.
+            Update the game's graphics.
+            Calls each window's `draw` method
         """
 
         self.screen.erase()
@@ -395,13 +400,20 @@ class Game:
             Update the game's state
         """
 
-        # update the snake and apple
+        # update the snake
         self.snake.update(self.inputs)
+
+        # if the snake's head coincides with the apple, it eats it
         if self.snake.head.pos == self.apple.pos:
+            # move the apple to a new position
             self.apple.set_new_pos(self.snake)
+
+            # increase the snake's length by one segment
             self.snake.add_segment(self.snake.head)
             self.score += 1
 
+        # if the snake has just died, add the current score
+        # to the player's `scores` list
         if self.snake.is_dead() and self.snake.counter == 1:
             self.scores.append(self.score)
 
@@ -455,7 +467,8 @@ class Snake:
 
     def update_wait(self):
         """
-            Update the snake when it's in the WAIT state
+            Update the snake when it's in the WAIT state.
+            Waits for `SNAKE_MOVE_DELAY` frames and then enters the MOVE state
         """
 
         if self.counter == SNAKE_MOVE_DELAY:
@@ -463,7 +476,10 @@ class Snake:
 
     def update_move(self, inputs: List[Direction]):
         """
-            Update the snake when it's in the MOVE state
+            Update the snake when it's in the MOVE state.
+            Moves based on the player's input.
+            Enters the DEAD state if this move made the snake die.
+            Enters the WAIT state otherwise.
         """
 
         # if the player didn't input anything, continue moving in the
@@ -489,7 +505,9 @@ class Snake:
 
     def update(self, inputs):
         """
-            Update the snake's state based on the inputs
+            Update the snake once per frame.
+            Increment the `counter` attribute.
+            Calls the `update_*` method corresponding to the snake's state.
         """
 
         self.counter += 1
@@ -506,7 +524,7 @@ class Snake:
     def move(self, direction: Direction) -> bool:
         """
             Move the snake's head in a direction, and have its body follow it.
-            Returns True if the snake dies
+            Returns True if the snake dies, otherwise returns False
         """
 
         prev_head = self.head.pos.copy()
@@ -545,7 +563,7 @@ class Snake:
 
     def draw(self, window):
         """
-            Draw the snake to the window
+            Draw the snake to the game window
         """
 
         self.head.draw(window)
@@ -606,7 +624,7 @@ class Apple:
 
     def draw(self, window):
         """
-            Draw the apple to the window
+            Draw the apple to the game window
         """
 
         window.draw_square(self.pos, Colors.APPLE)
@@ -619,7 +637,7 @@ class Apple:
 
 def clamp(num: int, lower: int, upper: int) -> int:
     """
-        Clamp `num` between `lower` and `upper`
+        Returns `num` clamped between `lower` and `upper`
     """
 
     if num > upper:
@@ -634,7 +652,7 @@ def clamp(num: int, lower: int, upper: int) -> int:
 def get_finish_message(score) -> str:
     """
         Returns the message to be presented to the player when
-        the snake dies
+        the snake dies, based on their score.
     """
 
     percentage = score / MAX_SCORE
