@@ -6,7 +6,7 @@ import curses
 import enum
 import random
 import time
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from dataclasses import dataclass
 
 
@@ -18,8 +18,16 @@ from dataclasses import dataclass
 FPS = 30
 GAME_WIDTH = 15
 GAME_HEIGHT = 10
+MAX_SCORE = GAME_WIDTH * GAME_HEIGHT
 SNAKE_MOVE_DELAY = 5
 BORDER_CHARS = ("|", "|", "-", "-", "+", "+", "+", "+")
+MESSAGES = [
+    "NICE TRY!",
+    "GOOD JOB!",
+    "WELL DONE!",
+    "CONGRATULATIONS!",
+    "PERFECT!"
+]
 
 
 # +----------------------------------------------------+
@@ -284,9 +292,16 @@ class Game:
 
     def __init__(self, screen):
         self.screen = screen
-        self.game_win = GameWindow(screen)
-        self.score_win = ScoreWindow(screen)
-        self.hiscore_win = HighScoreWindow(screen)
+
+        game_win = GameWindow(screen)
+        score_win = ScoreWindow(screen)
+        hiscore_win = HighScoreWindow(screen)
+
+        self.windows: Dict[str, Window] = {
+            "game": game_win,
+            "score": score_win,
+            "hiscore": hiscore_win
+        }
 
         self.snake = Snake()
         self.apple = Apple(self.snake)
@@ -327,14 +342,60 @@ class Game:
 
         return True
 
+    def get_finish_message(self) -> str:
+        """
+            Returns the message to be presented to the player when
+            the snake dies
+        """
+
+        percentage = self.score / MAX_SCORE
+        if percentage < 0.1:
+            return MESSAGES[0]
+        if percentage < 0.2:
+            return MESSAGES[1]
+        if percentage < 0.5:
+            return MESSAGES[2]
+        if percentage != MAX_SCORE:
+            return MESSAGES[3]
+
+        return MESSAGES[4]
+
+    def draw_controls(self):
+        """
+            Draw the controls and a message when the snake dies
+        """
+
+        screen_height, screen_width = self.screen.getmaxyx()
+
+        self.screen.attron(curses.color_pair(Colors.TEXT))
+
+        y = screen_height // 2 + GAME_HEIGHT // 2 + 3
+        quit_x = screen_width // 2 + GAME_WIDTH
+        message_x = screen_width // 2 - GAME_WIDTH - 4
+
+        if self.snake.is_dead():
+            message = self.get_finish_message()
+
+            self.screen.addstr(y, message_x, f"{message} R = RETRY")
+
+        self.screen.addstr(y, quit_x, "Q = QUIT")
+
+        self.screen.attroff(curses.color_pair(Colors.TEXT))
+
     def draw(self):
         """
             Update the game's graphics: the snake, apple, score, windows, etc.
         """
 
-        self.game_win.draw(self.snake, self.apple)
-        self.score_win.draw(self.score)
-        self.hiscore_win.draw(self.scores)
+        self.screen.erase()
+
+        self.windows["game"].draw(self.snake, self.apple)
+        self.windows["score"].draw(self.score)
+        self.windows["hiscore"].draw(self.scores)
+
+        self.draw_controls()
+
+        self.screen.refresh()
 
     def update(self) -> bool:
         """
@@ -387,12 +448,12 @@ class Snake:
     def __init__(self):
         self.head = Segment(Point(GAME_HEIGHT // 2, GAME_WIDTH // 2))
         self.body_segments: List[Segment] = [self.head]
-        self.state = self.State.WAIT
+        self.state: self.State = self.State.WAIT
         self.counter = 0
 
         # leave the snake stationary at the start
-        self.prev_input = Direction.NONE
-        self.cur_input = None
+        self.prev_input: Direction = Direction.NONE
+        self.cur_input: Direction = Direction.NONE
 
     def reset(self):
         """
@@ -402,7 +463,7 @@ class Snake:
         self.head.pos = Point(GAME_HEIGHT // 2, GAME_WIDTH // 2)
         self.body_segments: List[Segment] = [self.head]
         self.prev_input = Direction.NONE
-        self.cur_input = None
+        self.cur_input = Direction.NONE
 
         self.change_state(self.State.WAIT)
 
