@@ -98,3 +98,9 @@ When I had finished making the game, I sent a link to my friend to try it out, a
 ## Deployment
 
 - The site was deployed using Render. The steps to deploy are contained within [this guide](https://code-institute-students.github.io/deployment-docs/10-pp3/).
+
+## Credits
+
+- [This gist](https://gist.github.com/claymcleod/b670285f334acd56ad1c) for giving me a basic initial program structure and showing me what boilerplate code was necessary to get up and running.
+- [The Python `curses` documentation](https://docs.python.org/3/library/curses.html) for showing me which `curses` functions I had access to and how to use them to achieve what I wanted.
+- [This StackOverflow post](https://stackoverflow.com/a/24966639) for explaining how to stop the terminal from flickering constantly.
