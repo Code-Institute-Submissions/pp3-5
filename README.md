@@ -82,3 +82,10 @@ To figure this out, I followed [this guide](https://code-institute-students.gith
 
 Throughout the project I often tested the game (maybe "tested" is another word for "got distracted by"/"had too much fun with"...) to make sure it was working how I intended it to.
 When I had finished making the game, I sent a link to my friend to try it out, and he couldn't think of any notable improvements to the game's design.
+
+### Validator testing
+
+- Pylint
+  - My project passes through Pylint with no major errors or warnings.
+    I did add a rule in my `.pylintrc` file to allow for variables named `x` and `y`, but I think this is reasonable to allow.
+
