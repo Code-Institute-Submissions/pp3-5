@@ -18,3 +18,11 @@ The site is aimed towards those who like to spend their free time playing games 
       Running into the walls of the game area will end the game as well.
 
 ![Game window]()
+
+- __Score window__
+    - The score window appears above the game window.
+      It shows the player their current score, with a title to the left.
+    - The player's score will be incremented by 1 for each apple they collect.
+      If the game ends and the player chooses to retry, the player's score will be reset to 0.
+
+![Score window]()
