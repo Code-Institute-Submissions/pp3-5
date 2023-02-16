@@ -79,3 +79,6 @@ I ran into problems when trying to deploy my project.
 When trying to sign up to Heroku, it would consistently show me an error page that I couldn't find a way around.
 I contacted a tutor and they said the best course of action would probably be to use another host, such as Render.
 To figure this out, I followed [this guide](https://code-institute-students.github.io/deployment-docs/10-pp3/).
+
+Throughout the project I often tested the game (maybe "tested" is another word for "got distracted by"/"had too much fun with"...) to make sure it was working how I intended it to.
+When I had finished making the game, I sent a link to my friend to try it out, and he couldn't think of any notable improvements to the game's design.
