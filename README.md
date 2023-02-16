@@ -33,3 +33,14 @@ The site is aimed towards those who like to spend their free time playing games 
     - Only the player's top 10 scores can be shown due to the height of the window; the rest will be cut off.
 
 ![High score window]()
+
+- __Message window__
+    - The message window serves a double purpose: it shows the game's controls to the player, and it presents them with a congratulatory message when the game ends.
+    - The congratulatory message varies depending on the player's score when the game ended.
+    - The controls shown are Q to quit, and R to retry.
+      - Note that retrying is only allowed after the game has ended, not in the middle of a game.
+      - Also note that the lack of a pause feature is an intentional game design choice.
+      If the player could pause, they could gain an unfair advantage in that they could see the current state of the game and plan ahead for which directions to turn.
+      This is contrary to the spirit of the game, as it's design to require the player to think on their feet, not take time to strategize and plan out movements.
+
+![Message window]()
