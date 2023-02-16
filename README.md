@@ -44,3 +44,9 @@ The site is aimed towards those who like to spend their free time playing games 
       This is contrary to the spirit of the game, as it's design to require the player to think on their feet, not take time to strategize and plan out movements.
 
 ![Message window]()
+
+### Features left to implement
+
+- A main menu
+- A difficulty setting (setting the snake's speed, game size, number of apples, etc.)
+- More readable characters to represent the snake's body than just blocks
