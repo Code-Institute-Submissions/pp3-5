@@ -26,3 +26,10 @@ The site is aimed towards those who like to spend their free time playing games 
       If the game ends and the player chooses to retry, the player's score will be reset to 0.
 
 ![Score window]()
+
+- __High score window__
+    - The high score window appears to the right of the game and score windows.
+      It shows the player's high scores, i.e. the scores in each game they've played since starting, sorted from highest to lowest.
+    - Only the player's top 10 scores can be shown due to the height of the window; the rest will be cut off.
+
+![High score window]()
