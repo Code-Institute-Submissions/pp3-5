@@ -89,3 +89,8 @@ When I had finished making the game, I sent a link to my friend to try it out, a
   - My project passes through Pylint with no major errors or warnings.
     I did add a rule in my `.pylintrc` file to allow for variables named `x` and `y`, but I think this is reasonable to allow.
 
+### Unfixed bugs
+
+- The virtual terminal on the published site doesn't allow for an invisible cursor.
+  Thus, the cursor moves around the screen very quickly as it draws everything to the screen.
+  Perhaps I could have found a way around this by reading more into the `node-pty` docs.
