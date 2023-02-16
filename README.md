@@ -5,7 +5,7 @@ The game runs in a virtual terminal on this website, but can also run in any Uni
 The site is aimed towards those who like to spend their free time playing games for fun.
 [Here's a link to the finished site.](https://tetraxile-ci-pp3.onrender.com)
 
-![Responsive markup]()
+![Responsive markup](media/mockup.png)
 
 ## Features
 
@@ -18,7 +18,7 @@ The site is aimed towards those who like to spend their free time playing games 
     - The player must be careful not to run into the body as they're looking for the next apple, as this will end the game.
       Running into the walls of the game area will end the game as well.
 
-![Game window]()
+![Game window](media/game_win.png)
 
 - __Score window__
     - The score window appears above the game window.
@@ -26,14 +26,14 @@ The site is aimed towards those who like to spend their free time playing games 
     - The player's score will be incremented by 1 for each apple they collect.
       If the game ends and the player chooses to retry, the player's score will be reset to 0.
 
-![Score window]()
+![Score window](media/score_win.png)
 
 - __High score window__
     - The high score window appears to the right of the game and score windows.
       It shows the player's high scores, i.e. the scores in each game they've played since starting, sorted from highest to lowest.
     - Only the player's top 10 scores can be shown due to the height of the window; the rest will be cut off.
 
-![High score window]()
+![High score window](media/hiscore_win.png)
 
 - __Message window__
     - The message window serves a double purpose: it shows the game's controls to the player, and it presents them with a congratulatory message when the game ends.
@@ -44,7 +44,7 @@ The site is aimed towards those who like to spend their free time playing games 
         If the player could pause, they could gain an unfair advantage in that they could see the current state of the game and plan ahead for which directions to turn.
         This is contrary to the spirit of the game, as it's design to require the player to think on their feet, not take time to strategize and plan out movements.
 
-![Message window]()
+![Message window](media/message_win.png)
 
 ### Features left to implement
 
