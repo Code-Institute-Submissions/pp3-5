@@ -94,3 +94,7 @@ When I had finished making the game, I sent a link to my friend to try it out, a
 - The virtual terminal on the published site doesn't allow for an invisible cursor.
   Thus, the cursor moves around the screen very quickly as it draws everything to the screen.
   Perhaps I could have found a way around this by reading more into the `node-pty` docs.
+
+## Deployment
+
+- The site was deployed using Render. The steps to deploy are contained within [this guide](https://code-institute-students.github.io/deployment-docs/10-pp3/).
