@@ -99,6 +99,7 @@ When I had finished making the game, I sent a link to my friend to try it out, a
 ## Deployment
 
 - The site was deployed using Render. The steps to deploy are contained within [this guide](https://code-institute-students.github.io/deployment-docs/10-pp3/).
+- The project can be cloned by running `git clone https://github.com/tetraxile-ci/pp3` in a terminal.
 
 ## Credits
 
